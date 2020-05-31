@@ -34,8 +34,12 @@ public class ContactManagementServiceImpl implements ContactManagementService {
             ContactDetails contactDetails;
             if(getContactDetailsRequest.getContact() != null){
                  contactDetails = contactDetailsRepository.findByContact(getContactDetailsRequest.getContact());
+                logger.info(contactDetails);
+
             } else {
                 contactDetails = contactDetailsRepository.findByEmail(getContactDetailsRequest.getEmail());
+                logger.info(contactDetails);
+
             }
             if(contactDetails != null) {
                 contactDetailsList.add(contactDetails);
@@ -71,8 +75,8 @@ public class ContactManagementServiceImpl implements ContactManagementService {
     @Override
     public BaseResponse createContact(CreateContactRequest createContactRequest) throws Exception{
         BaseResponse response = new BaseResponse();
-        ContactDetails contactDetails = contactDetailsRepository.findByContact(createContactRequest.getContact());
-        if(contactDetails != null){
+        ContactDetails contactDetails;
+        if(contactDetailsRepository.findByContact(createContactRequest.getContact()) != null || contactDetailsRepository.findByEmail(createContactRequest.getEmail())!=null){
             response.setErrorCode(Constants.ErrorCodes.FAILURE);
             response.setMessage(Constants.ErrorMessages.DUPLICATE_CONTACT);
         } else {
@@ -88,6 +92,7 @@ public class ContactManagementServiceImpl implements ContactManagementService {
             contactDetails.setStatus(1);
             contactDetails.setCreated_at(new Date());
             contactDetails.setUpdated_at(new Date());
+            logger.info(contactDetails);
             contactDetailsRepository.save(contactDetails);
             response.setErrorCode(Constants.ErrorCodes.SUCCESS);
             response.setMessage(Constants.ErrorMessages.CONTACT_SAVED+createContactRequest.getContact());
